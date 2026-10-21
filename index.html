@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematik Testi - cuma </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+
+    <div class="max-w-3xl mx-auto py-10 px-5">
+        <!-- Başlık Alanı -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8 text-center">
+            <h1 class="text-2xl font-bold text-indigo-600 mb-2">Meva'nın Soruları</h1>
+            <p class="text-gray-500">Mutlak Değer, Kesirler, Ondalık Gösterim ve Sayı Doğrusu</p>
+        </div>
+
+        <!-- Öğrenci Bilgisi -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Öğrencinin Adı Soyadı:</label>
+            <input type="text" id="studentName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Adını buraya yaz...">
+        </div>
+
+        <!-- Sorular Konteyneri -->
+        <div id="quiz-container" class="space-y-6">
+            <!-- Sorular JS ile buraya yüklenecek -->
+        </div>
+
+        <!-- Buton -->
+        <div class="mt-8 text-center">
+            <button onclick="finishQuiz()" id="submitBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-200 w-full sm:w-auto">
+                Testi Bitir ve Sonuçları Gönder
+            </button>
+        </div>
+    </div>
+
+    <!-- Sonuç Modalı -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 px-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full text-center transform scale-95 transition-all">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Harika İş Çıkardın!</h2>
+            <p id="resultText" class="text-gray-600 mb-6">Sonuçların hesaplanıyor...</p>
+            <p class="text-sm text-indigo-600 font-medium mb-6">Sonuçların Rıza Hoca'ya e-posta olarak iletildi.</p>
+            <button onclick="closeModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg w-full transition">
+                Sayfayı Kapat
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Soru Veritabanı
+        const questionsData = [
+            {
+        id: 1,
+        question: "'İki yüz elli dört bin on sekiz' sayısının rakamlarla yazılışı aşağıdakilerden hangisidir?",
+        options: ["25418", "254018", "250418", "254108"],
+        correct: 1,
+        topic: "Sayıların Yazılışı"
+    },
+    {
+        id: 2,
+        question: "'Yedi bin on iki' sayısının rakamlarla yazılışı aşağıdakilerden hangisidir?",
+        options: ["712", "7012", "70012", "7120"],
+        correct: 1,
+        topic: "Sayıların Yazılışı"
+    },
+    {
+        id: 3,
+        question: "'Kırk beş bin üç yüz yirmi' sayısının rakamlarla yazılışı aşağıdakilerden hangisidir?",
+        options: ["45320", "450320", "405320", "45302"],
+        correct: 0,
+        topic: "Sayıların Yazılışı"
+    },
+    {
+        id: 4,
+        question: "'Yüz dört bin yedi' sayısının rakamlarla yazılışı aşağıdakilerden hangisidir?",
+        options: ["1047", "10407", "104007", "100407"],
+        correct: 2,
+        topic: "Sayıların Yazılışı"
+    },
+    {
+        id: 5,
+        question: "'Dokuz yüz bin dokuz yüz dokuz' sayısının rakamlarla yazılışı aşağıdakilerden hangisidir?",
+        options: ["90909", "900909", "909909", "900009"],
+        correct: 1,
+        topic: "Sayıların Yazılışı"
+    },
+    {
+        id: 6,
+        question: "'Elli bin elli' sayısının rakamlarla yazılışı aşağıdakilerden hangisidir?",
+        options: ["50050", "5050", "500050", "50500"],
+        correct: 0,
+        topic: "Sayıların Yazılışı"
+    },
+    {
+        id: 7,
+        question: "'Sekiz bin on' sayısının rakamlarla yazılışı aşağıdakilerden hangisidir?",
+        options: ["80010", "810", "8010", "8001"],
+        correct: 2,
+        topic: "Sayıların Yazılışı"
+    },
+
+    // --- 2. Bölüm: Yazılışı Verilen Sayının Okunuşu ---
+    {
+        id: 8,
+        question: "304 015 sayısının okunuşu aşağıdakilerden hangisidir?",
+        options: ["Üç yüz kırk bin on beş", "Üç yüz dört bin on beş", "Üç yüz dört bin elli", "Üç yüz kırk bin yüz beş"],
+        correct: 1,
+        topic: "Sayıların Okunuşu"
+    },
+    {
+        id: 9,
+        question: "5 012 sayısının okunuşu aşağıdakilerden hangisidir?",
+        options: ["Beş yüz on iki", "Beş bin yüz iki", "Beş bin on iki", "Elli bin on iki"],
+        correct: 2,
+        topic: "Sayıların Okunuşu"
+    },
+    {
+        id: 10,
+        question: "72 045 sayısının okunuşu aşağıdakilerden hangisidir?",
+        options: ["Yetmiş iki bin dört yüz beş", "Yetmiş iki bin kırk beş", "Yedi yüz yirmi bin kırk beş", "Yetmiş bin iki yüz kırk beş"],
+        correct: 1,
+        topic: "Sayıların Okunuşu"
+    },
+    {
+        id: 11,
+        question: "800 008 sayısının okunuşu aşağıdakilerden hangisidir?",
+        options: ["Sekiz yüz bin sekiz", "Seksen bin sekiz", "Sekiz yüz bin seksen", "Sekiz bin sekiz"],
+        correct: 0,
+        topic: "Sayıların Okunuşu"
+    },
+    {
+        id: 12,
+        question: "15 302 sayısının okunuşu aşağıdakilerden hangisidir?",
+        options: ["On beş bin otuz iki", "On beş bin üç yüz iki", "Yüz elli bin üç yüz iki", "On beş bin üç yüz yirmi"],
+        correct: 1,
+        topic: "Sayıların Okunuşu"
+    },
+    {
+        id: 13,
+        question: "404 404 sayısının okunuşu aşağıdakilerden hangisidir?",
+        options: ["Dört yüz kırk bin dört yüz", "Dört yüz dört bin kırk dört", "Dört yüz dört bin dört yüz dört", "Kırk dört bin dört yüz dört"],
+        correct: 2,
+        topic: "Sayıların Okunuşu"
+    },
+    {
+        id: 14,
+        question: "90 101 sayısının okunuşu aşağıdakilerden hangisidir?",
+        options: ["Doksan bin yüz bir", "Doksan yüz bin on", "Dokuz bin yüz bir", "Doksan bin on bir"],
+        correct: 0,
+        topic: "Sayıların Okunuşu"
+    },
+
+    // --- 3. Bölüm: Bölük Kavramı ---
+    {
+        id: 15,
+        question: "456 789 sayısının binler bölüğündeki sayı kaçtır?",
+        options: ["456", "789", "4567", "678"],
+        correct: 0,
+        topic: "Bölük Kavramı"
+    },
+    {
+        id: 16,
+        question: "Birler bölüğünde 12, binler bölüğünde 304 olan sayı aşağıdakilerden hangisidir?",
+        options: ["12304", "304012", "30412", "120304"],
+        correct: 1,
+        topic: "Bölük Kavramı"
+    },
+    {
+        id: 17,
+        question: "50 408 sayısının birler bölüğündeki rakamların toplamı kaçtır?",
+        options: ["5", "12", "17", "13"],
+        correct: 1,
+        topic: "Bölük Kavramı"
+    },
+    {
+        id: 18,
+        question: "708 045 sayısının binler bölüğündeki sayının okunuşu aşağıdakilerden hangisidir?",
+        options: ["Kırk beş", "Yedi yüz sekiz", "Yetmiş sekiz", "Sıfır kırk beş"],
+        correct: 1,
+        topic: "Bölük Kavramı"
+    },
+    {
+        id: 19,
+        question: "Binler bölüğünde 7, birler bölüğünde 707 olan sayı aşağıdakilerden hangisidir?",
+        options: ["7077", "7707", "70707", "707007"],
+        correct: 1,
+        topic: "Bölük Kavramı"
+    },
+    {
+        id: 20,
+        question: "890 123 sayısında '9' rakamı hangi bölükte yer almaktadır?",
+        options: ["Milyonlar Bölüğü", "Binler Bölüğü", "Birler Bölüğü", "Onlar Bölüğü"],
+        correct: 1,
+        topic: "Bölük Kavramı"
+    },
+
+    // --- 4. Bölüm: Toplama ve Çıkarma İşlemi ---
+    {
+        id: 21,
+        question: "4500 + 3200 işleminin sonucu kaçtır?",
+        options: ["7600", "7700", "8700", "7800"],
+        correct: 1,
+        topic: "Toplama ve Çıkarma"
+    },
+    {
+        id: 22,
+        question: "12500 - 4500 işleminin sonucu kaçtır?",
+        options: ["7000", "8000", "8500", "9000"],
+        correct: 1,
+        topic: "Toplama ve Çıkarma"
+    },
+    {
+        id: 23,
+        question: "3456 + 1243 işleminin sonucu kaçtır?",
+        options: ["4599", "4689", "4699", "4799"],
+        correct: 2,
+        topic: "Toplama ve Çıkarma"
+    },
+    {
+        id: 24,
+        question: "5000 - 1250 işleminin sonucu kaçtır?",
+        options: ["3750", "3850", "4250", "3650"],
+        correct: 0,
+        topic: "Toplama ve Çıkarma"
+    },
+    {
+        id: 25,
+        question: "48900 + 1100 işleminin sonucu kaçtır?",
+        options: ["49000", "50000", "49900", "51000"],
+        correct: 1,
+        topic: "Toplama ve Çıkarma"
+    },
+    {
+        id: 26,
+        question: "Bir çiftçi 4500 kg elma, 3200 kg armut satmıştır. Çiftçi toplam kaç kg meyve satmıştır?",
+        options: ["7500", "7600", "7700", "7800"],
+        correct: 2,
+        topic: "Toplama ve Çıkarma"
+    },
+    {
+        id: 27,
+        question: "8500 sayısının 2300 eksiği kaçtır?",
+        options: ["6100", "6200", "6300", "5200"],
+        correct: 1,
+        topic: "Toplama ve Çıkarma"
+    },
+
+    // --- 5. Bölüm: Ardışık Örüntüler ---
+    {
+        id: 28,
+        question: "12 - 17 - 22 - 27 - ? örüntüsünde soru işareti yerine hangi sayı gelmelidir?",
+        options: ["30", "31", "32", "33"],
+        correct: 2,
+        topic: "Örüntüler"
+    },
+    {
+        id: 29,
+        question: "50 - 45 - 40 - 35 - ? örüntüsünde soru işareti yerine hangi sayı gelmelidir?",
+        options: ["25", "30", "35", "40"],
+        correct: 1,
+        topic: "Örüntüler"
+    },
+    {
+        id: 30,
+        question: "4 - 8 - 12 - 16 - ? örüntüsünde soru işareti yerine hangi sayı gelmelidir?",
+        options: ["18", "20", "22", "24"],
+        correct: 1,
+        topic: "Örüntüler"
+    },
+    {
+        id: 31,
+        question: "100 - 90 - 80 - A - 60 örüntüsünde A yerine hangi sayı gelmelidir?",
+        options: ["75", "70", "65", "85"],
+        correct: 1,
+        topic: "Örüntüler"
+    },
+    {
+        id: 32,
+        question: "Kuralı 'her adımda 6 artan' olan örüntü aşağıdakilerden hangisidir?",
+        options: ["7 - 13 - 19 - 25", "6 - 10 - 14 - 18", "5 - 12 - 18 - 24", "10 - 15 - 20 - 25"],
+        correct: 0,
+        topic: "Örüntüler"
+    },
+    {
+        id: 33,
+        question: "15 - 25 - 35 - 45... şeklinde devam eden örüntünün 6. adımı kaçtır?",
+        options: ["55", "65", "75", "45"],
+        correct: 1,
+        topic: "Örüntüler"
+    },
+    {
+        id: 34,
+        question: "8 - 16 - 24 - 32... örüntüsünde 5. adımdaki sayı ile 2. adımdaki sayının farkı kaçtır?",
+        options: ["16", "24", "32", "40"],
+        correct: 1,
+        topic: "Örüntüler"
+    },
+
+    // --- 6. Bölüm: Yuvarlama ---
+    {
+        id: 35,
+        question: "456 sayısının en yakın onluğa yuvarlanmış hali aşağıdakilerden hangisidir?",
+        options: ["450", "460", "500", "400"],
+        correct: 1,
+        topic: "Yuvarlama"
+    },
+    {
+        id: 36,
+        question: "1245 sayısının en yakın yüzlüğe yuvarlanmış hali aşağıdakilerden hangisidir?",
+        options: ["1200", "1300", "1250", "1240"],
+        correct: 0,
+        topic: "Yuvarlama"
+    },
+    {
+        id: 37,
+        question: "782 sayısının en yakın onluğa yuvarlanmış hali aşağıdakilerden hangisidir?",
+        options: ["780", "790", "800", "700"],
+        correct: 0,
+        topic: "Yuvarlama"
+    },
+    {
+        id: 38,
+        question: "4550 sayısının en yakın yüzlüğe yuvarlanmış hali aşağıdakilerden hangisidir?",
+        options: ["4500", "4600", "5000", "4000"],
+        correct: 1,
+        topic: "Yuvarlama"
+    },
+    {
+        id: 39,
+        question: "Aşağıdaki sayılardan hangisi en yakın onluğa yuvarlandığında 50 elde edilir?",
+        options: ["44", "55", "47", "58"],
+        correct: 2,
+        topic: "Yuvarlama"
+    },
+    {
+        id: 40,
+        question: "987 sayısının en yakın yüzlüğe yuvarlanmış hali kaçtır?",
+        options: ["900", "980", "990", "1000"],
+        correct: 3,
+        topic: "Yuvarlama"
+    }
+     
+            
+
+            // Diğer 12 soruyu aynı formatta buraya ekleyebilirsin
+        ];
+
+        let userAnswers = {};
+
+        function renderQuestions() {
+            const container = document.getElementById("quiz-container");
+            container.innerHTML = "";
+
+            questionsData.forEach((q, index) => {
+                const questionHTML = `
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded">${q.topic}</span>
+                            <span class="text-gray-400 text-sm font-medium">Soru ${index + 1}</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">${q.question}</h3>
+                        <div class="space-y-3">
+                            ${q.options.map((opt, optIndex) => `
+                                <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-indigo-50 transition peer-checked:bg-indigo-50 peer-checked:border-indigo-500">
+                                    <input type="radio" name="q${q.id}" value="${optIndex}" onchange="selectAnswer(${q.id}, ${optIndex})" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-700">${opt}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += questionHTML;
+            });
+        }
+
+        function selectAnswer(questionId, optionIndex) {
+            userAnswers[questionId] = optionIndex;
+        }
+
+        function finishQuiz() {
+            const studentName = document.getElementById("studentName").value;
+            if (!studentName) {
+                alert("Lütfen önce adını soyadını yaz!");
+                return;
+            }
+
+            const btn = document.getElementById("submitBtn");
+            btn.innerHTML = "Sonuçlar Gönderiliyor...";
+            btn.disabled = true;
+
+            let score = 0;
+            let wrongQuestions = [];
+
+            questionsData.forEach(q => {
+                if (userAnswers[q.id] === q.correct) {
+                    score++;
+                } else {
+                    const userAnswerText = userAnswers[q.id] !== undefined ? q.options[userAnswers[q.id]] : "Boş";
+                    wrongQuestions.push(`Soru ${q.id} (${q.topic}): Cevabın '${userAnswerText}', Doğrusu '${q.options[q.correct]}'`);
+                }
+            });
+
+            // E-posta Gönderimi için Formspree Kullanımı
+            // DİKKAT: "YOUR_FORMSPREE_ENDPOINT" yazan yeri kendi linkinle değiştirmelisin.
+            const formspreeEndpoint = "https://formspree.io/f/mgaoakgk";
+
+            const emailData = {
+                Ogrenci_Adi: studentName,
+                Dogru_Sayisi: score,
+                Yanlis_Bos_Sayisi: questionsData.length - score,
+                Toplam_Soru: questionsData.length,
+                Hata_Detaylari: wrongQuestions.length > 0 ? wrongQuestions.join(" | ") : "Hepsi Doğru!"
+            };
+
+            fetch(formspreeEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(emailData)
+            })
+            .then(response => {
+                showModal(score, questionsData.length);
+            })
+            .catch(error => {
+                alert("Bir hata oluştu, lütfen Rıza Hoca'ya haber ver.");
+                btn.innerHTML = "Tekrar Dene";
+                btn.disabled = false;
+            });
+        }
+
+        function showModal(score, total) {
+            document.getElementById("resultText").innerHTML = `${total} soruda <strong>${score} doğru</strong> yaptın.`;
+            const modal = document.getElementById("resultModal");
+            modal.classList.remove("hidden");
+        }
+
+        function closeModal() {
+            window.location.reload();
+        }
+
+        // Sayfa yüklendiğinde soruları bas
+        window.onload = renderQuestions;
+    
+    </script>
+</body>
+</html>
